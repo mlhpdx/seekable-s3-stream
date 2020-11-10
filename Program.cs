@@ -15,7 +15,7 @@ namespace Seekable_S3_Stream
         {
             var s3 = new AmazonS3Client();
 
-            var stream = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 1 * 1024 * 1024, 4);
+            using var stream = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 1 * 1024 * 1024, 4);
             using var iso = new CDReader(stream, true);
             using var file = iso.OpenFile(FILENAME, FileMode.Open, FileAccess.Read);
             using var reader = new StreamReader(file);
