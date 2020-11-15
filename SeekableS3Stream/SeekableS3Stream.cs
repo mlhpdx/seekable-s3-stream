@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Diagnostics;
 
 namespace Cppl.Utilities.AWS
 {

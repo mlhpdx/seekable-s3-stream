@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using DiscUtils.Iso9660;
 
-namespace Seekable_S3_Stream
+namespace SeekableS3Stream.Examples.LoadOneFileFromIso
 {
     class Program
     {
@@ -21,7 +21,7 @@ namespace Seekable_S3_Stream
             using var reader = new StreamReader(file);
             var content = await reader.ReadToEndAsync();
 
-            await Console.Out.WriteLineAsync($"{stream.TotalRead / (float)stream.Length * 100}% read, {stream.TotalLoaded / (float)stream.Length * 100}% loaded");
+            await Console.Out.WriteLineAsync($"{stream.TotalRead:0,000} read {stream.TotalLoaded:0,000} loaded of {stream.Length:0,000} bytes");
         }
     }
 }
