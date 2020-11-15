@@ -3,11 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Cppl.Utilities.AWS</RootNamespace>
+    <PackageId>SeekableS3Stream</PackageId>
+    <Authors>Lee Harding</Authors>
+    <Company>CircuitPeople</Company>
+    <Title>SeekableS3Stream Library</Title>
+    <PackageDescription>A `Stream` subclass that provides efficient network I/O when reading large, complex files from AWS S3.</PackageDescription>
+    <PackageTags>stream;s3;aws;http-range;random-access</PackageTags>
+    <RepositoryUrl>https://github.com/mlhpdx/seekable-s3-stream</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.5.4" />
-    <PackageReference Include="Parquet.Net" Version="3.8.1" />
   </ItemGroup>
 
 </Project>

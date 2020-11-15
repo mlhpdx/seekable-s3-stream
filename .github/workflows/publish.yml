@@ -1,0 +1,36 @@
+name: Publish NuGet
+
+on: 
+    release: 
+      types:
+        - created
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    name: Upload NuGet Package
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Setup .NET Core @ Latest
+        uses: actions/setup-dotnet@v1
+        with:
+          source-url: https://nuget.pkg.github.com/mlhpdx/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
+          
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Build solution and generate NuGet package
+        run: |  
+          cd SeekableS3Stream
+          dotnet pack -c Release -o out /p:Version=$VERSION
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+
+      - name: Push generated package to GitHub registry
+        run: dotnet nuget push ./SeekableS3Stream/out/*.nupkg --skip-duplicate --no-symbols true
