@@ -5,7 +5,7 @@ using Amazon.S3;
 using Parquet;
 using Parquet.Data;
 
-namespace Seekable_S3_Stream
+namespace SeekableS3Stream.Examples.LoadSchemaFromParquet
 {
     class Program
     {
@@ -19,7 +19,7 @@ namespace Seekable_S3_Stream
             using var parquet = new ParquetReader(stream);
             var fields = parquet.Schema.GetDataFields();
 
-            await Console.Out.WriteLineAsync($"{stream.TotalRead / (float)stream.Length * 100}% read, {stream.TotalLoaded / (float)stream.Length * 100}% loaded");
+            await Console.Out.WriteLineAsync($"{stream.TotalRead:0,000} read {stream.TotalLoaded:0,000} loaded of {stream.Length:0,000} bytes");
         }
     }
 }
