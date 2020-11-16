@@ -62,7 +62,7 @@ namespace Cppl.Utilities.AWS
         public override long Position
         {
             get => _metadata.Position;
-            set => Seek(value, value > 0 ? SeekOrigin.Begin : SeekOrigin.End);
+            set => Seek(value, value >= 0 ? SeekOrigin.Begin : SeekOrigin.End);
         }
 
         public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
