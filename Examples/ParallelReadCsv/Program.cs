@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.IO.Compression;
 using System.Threading.Tasks;
 using Amazon.S3;
-using DiscUtils.Iso9660;
 
 namespace SeekableS3Stream.Examples.ParallelReadCsv
 {
@@ -16,7 +13,7 @@ namespace SeekableS3Stream.Examples.ParallelReadCsv
         {
             var s3 = new AmazonS3Client();
 
-            using var stream1 = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 128 * 1024, 12);
+            using var stream1 = new Cppl.Utilities.AWS.SeekableS3Stream(s3, BUCKET, KEY, 1024 * 1024, 100);
 
             // look for the first line ending past the middle of the file (only reads one range)
             stream1.Position = stream1.Length / 2;

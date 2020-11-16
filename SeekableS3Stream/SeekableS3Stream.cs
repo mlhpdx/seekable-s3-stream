@@ -28,8 +28,8 @@ namespace Cppl.Utilities.AWS
             public long PageSize = DEFAULT_PAGE_LENGTH;
             public long MaxPages = DEFAULT_MAX_PAGE_COUNT;
 
-            public ConcurrentDictionary<long, byte[]> Pages = new ConcurrentDictionary<long, byte[]>(Environment.ProcessorCount, DEFAULT_MAX_PAGE_COUNT);
-            public ConcurrentDictionary<long, long> HotList = new ConcurrentDictionary<long, long>(Environment.ProcessorCount, DEFAULT_MAX_PAGE_COUNT);
+            public ConcurrentDictionary<long, byte[]> Pages;
+            public ConcurrentDictionary<long, long> HotList;
         }
 
         MetaData _metadata = null;
@@ -46,6 +46,8 @@ namespace Cppl.Utilities.AWS
                 Key = key,
                 PageSize = page,
                 MaxPages = maxpages,
+                Pages = new ConcurrentDictionary<long, byte[]>(Environment.ProcessorCount, maxpages),
+                HotList = new ConcurrentDictionary<long, long>(Environment.ProcessorCount, maxpages)
             };
 
             var m = _metadata.S3.GetObjectMetadataAsync(_metadata.Bucket, _metadata.Key).GetAwaiter().GetResult();
@@ -109,9 +111,8 @@ namespace Cppl.Utilities.AWS
                         ByteRange = new ByteRange(s, e)
                     };
 
-                    _metadata.Pages[i] = (b = new byte[e - s]);
-                    if (!_metadata.HotList.ContainsKey(i))
-                        _metadata.HotList[i] = 1;
+                    b = new byte[e - s];
+                    _metadata.Pages.AddOrUpdate(i, i => b, (i, _) => b);
 
                     int read = 0;
                     using (var r = await _metadata.S3.GetObjectAsync(go, cancellationToken))
@@ -123,7 +124,7 @@ namespace Cppl.Utilities.AWS
                     }
                     TotalLoaded += read;
                 }
-                else _metadata.HotList[i] += 1;
+                _metadata.HotList.AddOrUpdate(i, i => 1, (i, c) => c + 1);
 
                 long l = Math.Min(b.Length - o, count);
                 Array.Copy(b, (int)o, buffer, offset, (int)l);
