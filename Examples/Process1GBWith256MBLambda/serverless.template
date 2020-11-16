@@ -1,0 +1,26 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "An AWS Serverless Application.",
+  "Resources": {
+    "Processor": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "Process1GBWith256MBLambda::Process1GBWith256MBLambda.Functions::Get",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 900,
+        "Role": null,
+        "Policies": [
+          "AWSLambdaBasicExecutionRole",
+          {
+            "S3ReadPolicy": {
+              "BucketName": "rds.nsrl.nist.gov"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
