@@ -1,7 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,40 +16,51 @@ namespace Cppl.Utilities.AWS
 
         internal class MetaData
         {
+            public IAmazonS3 S3;
+            
             public string Bucket;
             public string Key;
 
             public string S3eTag;
 
             public long Length = 0;
-            public long Position = 0;
 
             public long PageSize = DEFAULT_PAGE_LENGTH;
             public long MaxPages = DEFAULT_MAX_PAGE_COUNT;
 
-            public Dictionary<long, byte[]> Pages = new Dictionary<long, byte[]>(DEFAULT_MAX_PAGE_COUNT);
-            public Dictionary<long, long> HotList = new Dictionary<long, long>(DEFAULT_MAX_PAGE_COUNT);
+            public ConcurrentDictionary<long, byte[]> Pages = new ConcurrentDictionary<long, byte[]>(Environment.ProcessorCount, DEFAULT_MAX_PAGE_COUNT);
+            public ConcurrentDictionary<long, long> HotList = new ConcurrentDictionary<long, long>(Environment.ProcessorCount, DEFAULT_MAX_PAGE_COUNT);
         }
 
         MetaData _metadata = null;
-        IAmazonS3 _s3 = null;
+        long _position = 0;
 
         public long TotalRead { get; private set; }
         public long TotalLoaded { get; private set; }
 
         public SeekableS3Stream(IAmazonS3 s3, string bucket, string key, long page = DEFAULT_PAGE_LENGTH, int maxpages = DEFAULT_MAX_PAGE_COUNT)
         {
-            _s3 = s3;
             _metadata = new MetaData() {
+                S3 = s3,
                 Bucket = bucket,
                 Key = key,
                 PageSize = page,
                 MaxPages = maxpages,
             };
 
-            var m = _s3.GetObjectMetadataAsync(_metadata.Bucket, _metadata.Key).GetAwaiter().GetResult();
+            var m = _metadata.S3.GetObjectMetadataAsync(_metadata.Bucket, _metadata.Key).GetAwaiter().GetResult();
             _metadata.Length = m.ContentLength;
             _metadata.S3eTag = m.ETag;
+        }
+
+        private SeekableS3Stream() { }
+
+        public SeekableS3Stream Fork() 
+        {
+            var s5 = new SeekableS3Stream();
+            s5._metadata = _metadata;
+            s5._position = _position;
+            return s5;
         }
 
         protected override void Dispose(bool disposing) => base.Dispose(disposing);
@@ -61,31 +72,22 @@ namespace Cppl.Utilities.AWS
         public override long Length => _metadata.Length;
         public override long Position
         {
-            get => _metadata.Position;
-            set => Seek(value, value > 0 ? SeekOrigin.Begin : SeekOrigin.End);
+            get => _position;
+            set => Seek(value, value >= 0 ? SeekOrigin.Begin : SeekOrigin.End);
         }
 
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
-            return base.ReadAsync(buffer, offset, count, cancellationToken);
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            if (_metadata.Position < 0 || _metadata.Position >= Length)
+            if (_position < 0 || _position >= Length)
                 return 0;
 
-            long p = _metadata.Position;
+            long p = _position;
             do
             {
                 long i = p / _metadata.PageSize;
                 long o = p % _metadata.PageSize;
 
-                byte[] b = null;
-                if (_metadata.Pages.ContainsKey(i))
-                {
-                    b = _metadata.Pages[i];
-                }
+                _metadata.Pages.TryGetValue(i, out var b);
 
                 if (b == null)
                 {
@@ -93,7 +95,7 @@ namespace Cppl.Utilities.AWS
                     while (_metadata.Pages.Count >= _metadata.MaxPages)
                     {
                         var trim = _metadata.Pages.OrderBy(kv => _metadata.HotList[kv.Key]).First().Key;
-                        _metadata.Pages.Remove(trim);
+                        _metadata.Pages.TryRemove(trim, out var removed);
                     }
 
                     long s = i * _metadata.PageSize;
@@ -112,7 +114,7 @@ namespace Cppl.Utilities.AWS
                         _metadata.HotList[i] = 1;
 
                     int read = 0;
-                    using (var r = _s3.GetObjectAsync(go).GetAwaiter().GetResult())
+                    using (var r = await _metadata.S3.GetObjectAsync(go, cancellationToken))
                     {
                         do
                         {
@@ -130,15 +132,18 @@ namespace Cppl.Utilities.AWS
                 p += (int)l;
             } while (count > 0 && p < _metadata.Length);
 
-            long c = p - _metadata.Position;
+            long c = p - _position;
             TotalRead += c;
-            _metadata.Position = p;
+            _position = p;
             return (int)c;
         }
 
+        public override int Read(byte[] buffer, int offset, int count) =>
+            ReadAsync(buffer, offset, count, default(CancellationToken)).GetAwaiter().GetResult();
+
         public override long Seek(long offset, SeekOrigin origin)
         {
-            var newpos = _metadata.Position;
+            var newpos = _position;
             switch (origin)
             {
                 case SeekOrigin.Begin:
@@ -153,7 +158,7 @@ namespace Cppl.Utilities.AWS
             }
             if (newpos < 0 || newpos > _metadata.Length) 
                 throw new InvalidOperationException("Stream position is invalid.");
-            return _metadata.Position = newpos;
+            return _position = newpos;
         }
 
         public override void SetLength(long value) => throw new NotImplementedException();
