@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.305.6" />
-    <PackageReference Include="Parquet.Net" Version="4.20.0" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.308.9" />
+    <PackageReference Include="Parquet.Net" Version="4.23.5" />
   </ItemGroup>
 
   <ItemGroup>

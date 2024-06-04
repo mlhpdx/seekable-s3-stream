@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Cppl.Utilities.AWS</RootNamespace>
     <PackageId>SeekableS3Stream</PackageId>
+    <PackageReadmeFile>/Readme.md</PackageReadmeFile>
     <Authors>Lee Harding</Authors>
     <Company>CircuitPeople</Company>
     <Title>SeekableS3Stream Library</Title>
@@ -14,7 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.305.6" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.308.9" />
+    <None Include="../Readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
