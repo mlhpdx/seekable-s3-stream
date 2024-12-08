@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.308.9" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.410.1" />
     <PackageReference Include="DiscUtils" Version="0.16.13" />
   </ItemGroup>
 

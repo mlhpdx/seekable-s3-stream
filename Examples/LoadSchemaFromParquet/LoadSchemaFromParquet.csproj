@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.308.9" />
-    <PackageReference Include="Parquet.Net" Version="4.23.5" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.410.1" />
+    <PackageReference Include="Parquet.Net" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>

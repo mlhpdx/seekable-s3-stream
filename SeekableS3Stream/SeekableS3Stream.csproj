@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Cppl.Utilities.AWS</RootNamespace>
     <PackageId>SeekableS3Stream</PackageId>
     <PackageReadmeFile>/Readme.md</PackageReadmeFile>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.308.9" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.410.1" />
     <None Include="../Readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
