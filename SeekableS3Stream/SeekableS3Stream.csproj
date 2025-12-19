@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.410.1" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.15.1" />
     <None Include="../Readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 

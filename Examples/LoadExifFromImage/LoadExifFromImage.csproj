@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.410.1" />
-    <PackageReference Include="MetadataExtractor" Version="2.8.1" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.15.1" />
+    <PackageReference Include="MetadataExtractor" Version="2.9.0" />
   </ItemGroup>
 
   <ItemGroup>
